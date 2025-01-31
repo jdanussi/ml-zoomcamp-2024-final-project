@@ -43,9 +43,9 @@ The dataset used is a 102 category dataset, consisting of 102 flower categories.
 The images have large scale, pose and light variations. In addition, there are categories that have large variations within the category and several very similar categories.
 
 
-The [dataset] (https://www.robots.ox.ac.uk/%7Evgg/data/flowers/102/102flowers.tgz) and the [imagelabels] https://www.robots.ox.ac.uk/%7Evgg/data/flowers/102/imagelabels.mat were downloaded from the [Oxford 102 Flower dataset Homepage] https://www.robots.ox.ac.uk/%7Evgg/data/flowers/102/  
+The [dataset](https://www.robots.ox.ac.uk/%7Evgg/data/flowers/102/102flowers.tgz) and the [imagelabels](https://www.robots.ox.ac.uk/%7Evgg/data/flowers/102/imagelabels.mat) were downloaded from the [Oxford 102 Flower dataset Homepage](https://www.robots.ox.ac.uk/%7Evgg/data/flowers/102/)
 
-The names for classes where obteined from [JosephKJ/Oxford-102_Flower_dataset_labels.txt] https://gist.github.com/JosephKJ/94c7728ed1a8e0cd87fe6a029769cde1 and used into the python script `scripts/split_dataset_by_class.py` that was used as a helper to split the dateset into train, validation and test. 
+The names for classes where obteined from [JosephKJ/Oxford-102_Flower_dataset_labels.txt](https://gist.github.com/JosephKJ/94c7728ed1a8e0cd87fe6a029769cde1) and used into the python script `scripts/split_dataset_by_class.py` that was used as a helper to split the dateset into train, validation and test. 
 
 You don't need to run the procedure detailed below, as the dataset with images split by class is already included in this repository. This is just for informational purposes.
 
