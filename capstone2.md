@@ -293,3 +293,14 @@ REMOTE_URI=${PREFIX}:${TAG}
 {"url": "https://raw.githubusercontent.com/jdanussi/flowers-dataset/refs/heads/main/test/cape%20flower/image_03810.jpg"}
 
 https://exy970w5sd.execute-api.us-east-1.amazonaws.com/test
+
+
+
+
+# dataset init
+bash dataset-setup.sh
+ls -1 dataset/train > dat_train.txt
+ls -1 dataset/validation > dat_val.txt
+ls -1 dataset/test > dat_test.txt
+diff dat_train.txt dat_val.txt
+diff dat_train.txt dat_test.txt

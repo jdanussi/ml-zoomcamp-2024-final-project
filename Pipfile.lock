@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "48950b3c27129b9fd29c06e9343f09cfc4cc6bdf0b1bd553360044831d40a246"
+            "sha256": "96091eb8734ed9366a4e9436b057583e9372610c8a1f2a2ef917eb964ece9531"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -56,11 +56,11 @@
         },
         "certifi": {
             "hashes": [
-                "sha256:1275f7a45be9464efc1173084eaa30f866fe2e47d389406136d332ed4967ec56",
-                "sha256:b650d30f370c2b724812bee08008be0c4163b163ddaec3f2546c1caf65f191db"
+                "sha256:3d5da6925056f6f18f119200434a4780a94263f10d1c21d032a6f6b2baa20651",
+                "sha256:ca78db4565a652026a4db2bcdf68f2fb589ea80d0be70e03929ed730746b84fe"
             ],
             "markers": "python_version >= '3.6'",
-            "version": "==2024.12.14"
+            "version": "==2025.1.31"
         },
         "charset-normalizer": {
             "hashes": [
@@ -1646,11 +1646,11 @@
         },
         "certifi": {
             "hashes": [
-                "sha256:1275f7a45be9464efc1173084eaa30f866fe2e47d389406136d332ed4967ec56",
-                "sha256:b650d30f370c2b724812bee08008be0c4163b163ddaec3f2546c1caf65f191db"
+                "sha256:3d5da6925056f6f18f119200434a4780a94263f10d1c21d032a6f6b2baa20651",
+                "sha256:ca78db4565a652026a4db2bcdf68f2fb589ea80d0be70e03929ed730746b84fe"
             ],
             "markers": "python_version >= '3.6'",
-            "version": "==2024.12.14"
+            "version": "==2025.1.31"
         },
         "cffi": {
             "hashes": [
@@ -1951,11 +1951,12 @@
         },
         "ipython": {
             "hashes": [
-                "sha256:46ec58f8d3d076a61d128fe517a51eb730e3aaf0c184ea8c17d16e366660c6a6",
-                "sha256:b6a2274606bec6166405ff05e54932ed6e5cfecaca1fc05f2cacde7bb074d70b"
+                "sha256:be2c91895b0b9ea7ba49d33b23e2040c352b33eb6a519cca7ce6e0c743444251",
+                "sha256:cae85b0c61eff1fc48b0a8002de5958b6528fa9c8defb1894da63f42613708aa"
             ],
+            "index": "pypi",
             "markers": "python_version >= '3.10'",
-            "version": "==8.31.0"
+            "version": "==8.32.0"
         },
         "ipywidgets": {
             "hashes": [

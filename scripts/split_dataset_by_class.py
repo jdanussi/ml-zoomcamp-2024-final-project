@@ -67,7 +67,7 @@ def copy_images_by_class(indices, destination):
 
         os.makedirs(class_dir, exist_ok=True)  # Create class directory if it doesn't exist
 
-        filename = f"image_{idx:05d}.jpg"  # Format index as image_XXXX.jpg
+        filename = f"image_{idx:05d}.jpg"  # Format index as image_XXXXX.jpg
         src_path = os.path.join(source_dir, filename)
         dst_path = os.path.join(class_dir, filename)
         if os.path.exists(src_path):  # Check if file exists
