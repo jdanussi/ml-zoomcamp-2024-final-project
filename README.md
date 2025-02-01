@@ -88,7 +88,7 @@ The model was tuned by testing different values for the learning rate, dropout r
 
 The most performant model was first saved in TensorFlow format (h5) and then converted to the TensorFlow Lite (tflite) format to be used in a Lambda function without having to import the heavy TensorFlow library. The best model file is `xception_v1_1_18_0.924.tflite`
 
-The process and result can be seen in the [Model training and tuning](notebook.ipynb#model-training-and-tuning) section of the notebook.
+The process and result can be seen in the [Model training and tuning](notebooksnotebook.ipynb#model-training-and-tuning) section of the notebook.
 
 
 ## 6. Lambda function
@@ -171,3 +171,61 @@ REPORT RequestId: 0673d8a5-a7bf-4b08-9d9b-f4156281b196  Init Duration: 0.05 ms  
 
 
 ## 8. Cloud service deployment with AWS Lambda and Amazon API Gateway
+
+The flower class prediction service was deployed on AWS using a serverless Lambda created from the previously built Docker image. Before creating the AWS Lambda, the Docker image was published to a private repository on the Elastic Container Registry (ECR) service, from which it was easily selected when creating the Lambda. The default configuration of the Lambda was also modified to use a maximum memory of 1024 MB and a timeout of 30 seconds.
+
+Finally, the service provided by Lambda was exposed through a RESTful API endpoint via Amazon API Gateway, which only exposes the "predict" resource, accessible through the POST method.
+
+The API service is public and available via the following endpoint:
+https://exy970w5sd.execute-api.us-east-1.amazonaws.com/test/predict
+
+Below is the testing of the service using the `test_api_gateway.py` script: 
+
+```bash
+# Set the environment with the AWS credentials (modified this with your own credentials)
+> export AWS_PROFILE=jad-personal
+
+# You need this to be able to login to this registry with docker
+> $(aws ecr get-login --no-include-email --region us-east-1)
+WARNING! Using --password via the CLI is insecure. Use --password-stdin.
+Login Succeeded
+
+# Retag the docker image to prepare for ECR
+ACCOUNT=<YOUR-AWS-ACCOUNT-ID>
+REGION=us-east-1
+REGISTRY=flowers-tflite-images
+PREFIX=${ACCOUNT}.dkr.ecr.${REGION}.amazonaws.com/${REGISTRY}
+TAG=flowers-model-v1-002
+REMOTE_URI=${PREFIX}:${TAG} 
+
+> docker tag flowers-classification:latest ${REMOTE_URI}
+
+# Push image to ECR (The example is not the firsf push, that's why there layers that already exists)
+> docker push ${REMOTE_URI}
+The push refers to repository [564443450717.dkr.ecr.us-east-1.amazonaws.com/flowers-tflite-images]
+2de9bed70fa9: Pushed 
+761d3ed3c3f5: Layer already exists 
+ba79f31df61d: Layer already exists 
+9ab1906c8c2c: Layer already exists 
+1254b1310dfa: Layer already exists 
+ea2aba827ecd: Layer already exists 
+0091b0f618e4: Layer already exists 
+50467525f7a2: Layer already exists 
+a509bd9469d3: Layer already exists 
+3fda89dc2c05: Layer already exists 
+flowers-model-v1-002: digest: sha256:1c54bff1e4e7553321be248f2a94aaf441353b2c66985624a4dd8a9acb849594 size: 2425
+
+```
+
+After pushing the docker image, I create the Lambda function and API Gateway endpoint from AWS console. At the end, some screenshots are shown with the most relevant information set in each service.
+
+With the service endpoint available on AWS, we can perform testing from the local terminal using the script `test_api_gateway.py`
+
+```bash
+
+# Testing from terminal using script test_api_gateway.py
+> python test_api_gateway.py 
+{'cape flower': 19.202898025512695, 'gaura': 3.7901079654693604, 'trumpet creeper': 1.7330631017684937, 'blackberry lily': -0.5172544717788696, 'columbine': -1.182721734046936, 'tiger lily': -2.336095094680786, 'cautleya spicata': -2.3456387519836426, 'orange dahlia': -3.425830364227295, 'pink quill': -3.491724967956543, 'fire lily': -3.7202038764953613}
+> 
+
+```
