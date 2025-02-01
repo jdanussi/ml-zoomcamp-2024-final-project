@@ -170,7 +170,10 @@ REPORT RequestId: 0673d8a5-a7bf-4b08-9d9b-f4156281b196  Init Duration: 0.05 ms  
 
 
 ## 8. Cloud service deployment with AWS Lambda and Amazon API Gateway
-The flower class prediction service was deployed on AWS using a serverless Lambda created from the previously built Docker image. Before creating the AWS Lambda, the Docker image was published to a private repository on the Elastic Container Registry (ECR) service, from which it was easily selected when creating the Lambda. The default configuration of the Lambda was also modified to use a maximum memory of 1024 MB and a timeout of 30 seconds.
+The **Flower Class Prediction** service was deployed on **AWS Lambda**, a serverless computing platform, using a containerized approach. The Lambda function was created from a previously built Docker image. Before provisioning AWS Lambda, the Docker image was registered to a private repository in **Amazon Elastic Container Registry (Amazon ECR)**, allowing seamless selection during the function setup.
+
+Additionally, the default configuration of the **Lambda** function was modified to allocate **1024 MB of memory** and set a **timeout of 30 seconds** to optimize execution performance.
+
 
 Finally, the service provided by Lambda was exposed through a RESTful API endpoint via Amazon API Gateway, which only exposes the `predict` resource, accessible through the POST method.
 
