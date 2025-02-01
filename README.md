@@ -11,13 +11,13 @@
 8. Cloud service deployment with AWS Lambda and Amazon API Gateway
 
 ## 1. Problem Description
-In this project, I trained a Convolutional Neural Network (CNN) model for flower classification using transfer learning. The trained model was then deployed as a public cloud service on AWS, utilizing Lambda for serverless inference and API Gateway for external access. This setup enables users to send image URLs and receive predictions without requiring dedicated infrastructure. The solution is scalable, cost-effective, and accessible via a simple API request.
+In this project, I trained a Convolutional Neural Network (CNN) model for flower classification, leveraging transfer learning with the Xception architecture pretrained on ImageNet. The trained model was then deployed as a public cloud service on AWS, utilizing Lambda for serverless inference and API Gateway for external access. This setup allows users to send image URLs and receive predictions without the need for dedicated infrastructure. The solution is both scalable and cost-effective, accessible via a simple API request.
 
-The dataset used is the Oxford 102 Flower dataset that can be download from https://www.robots.ox.ac.uk/%7Evgg/data/flowers/102/102flowers.tgz
+The dataset used is the Oxford 102 Flower dataset that can be download from [here](https://www.robots.ox.ac.uk/%7Evgg/data/flowers/102/102flowers.tgz)
 
 
 ## 2. Dependency and environment management
-Pipenv was used to create the virtual environment and install the dependencies. In order to follow the development of the project you must clone the [repository](https://github.com/jdanussi/ml-zoomcamp-2024-final-project.git), create the virtual environment installing the required dependencies and activate it as demonstrated below.
+**Pipenv** was used to create the virtual environment and install the dependencies. In order to follow the development of the project you must clone [this repository](https://github.com/jdanussi/ml-zoomcamp-2024-final-project.git), create the virtual environment installing the required dependencies and activate it as demonstrated below.
 
 ```bash
 
@@ -36,12 +36,12 @@ Pipenv was used to create the virtual environment and install the dependencies. 
 ```
 
 
-## 3. EDA
-The dataset used is a 102 category dataset, consisting of 102 flower categories. Each class consists of between 40 and 258 images. 
-
+## 3. Exploratory Data Analysis
+The dataset used consists of 102 flower categories. Each class consists of between 40 and 258 images. 
 The images have large scale, pose and light variations. In addition, there are categories that have large variations within the category and several very similar categories.
 
-In the [Exploratory Data Analysis (EDA)](notebook.ipynb#exploratory-data-analysis-eda) section of the notebook, it is observed that the classes are not balanced. Using transfer learning with a pre-trained model can help, as the model has already learned features on a large, balanced dataset (like ImageNet), which can then be fine-tuned on your imbalanced dataset. This often leads to better generalization, especially for minority classes.
+In the [Exploratory Data Analysis (EDA)](notebook.ipynb#exploratory-data-analysis-eda) section of the notebook, it is observed that the classes are not balanced. 
+Since we are using transfer learning with a pre-trained model, which has already learned features from a large, balanced dataset (ImageNet), we can expect that the fine-tuning performed on top of the convolutional layers will lead to better generalization, particularly for minority classes.
 
 The [dataset](https://www.robots.ox.ac.uk/%7Evgg/data/flowers/102/102flowers.tgz) and the [imagelabels](https://www.robots.ox.ac.uk/%7Evgg/data/flowers/102/imagelabels.mat) were downloaded from the [Oxford 102 Flower dataset Homepage](https://www.robots.ox.ac.uk/%7Evgg/data/flowers/102/)
 
@@ -76,29 +76,28 @@ The split of the dataset was also published in the [flowers-dataset](git@github.
 
 
 ## 5. Model training and tuning
-We will use the Xception model from Keras, which was pre-trained on ImageNet, to extract image features. Then, we will build and train a dense model on top of it using transfer learning.
+We will use the **Xception** model from **Keras**, which was pre-trained on **ImageNet**, to extract image features. Then, we will build and train a dense model on top of it using transfer learning.
 
-The model was tuned by testing different values for the learning rate, dropout rate, and inner layer size. Data augmentation was also evaluated. The best performance was achieved with the following parameters:  
+The model was tuned by testing different values for the *learning rate*, *dropout rate*, and *inner layer size*. Data augmentation was also evaluated. The best performance was achieved with the following options:  
 
 - Learning rate: 0.001  
 - Dropout rate: 0.0 (no dropout)  
 - Inner layer size: 1000  
 - No data augmentation
 
+The most performant model was first saved in TensorFlow format (h5) and then converted to TensorFlow Lite (tflite) format to be used in a Lambda function without the need to import the heavy TensorFlow library. The best model was saved and converted to the file `xception_v1_1_18_0.924.tflite`.
 
-The most performant model was first saved in TensorFlow format (h5) and then converted to the TensorFlow Lite (tflite) format to be used in a Lambda function without having to import the heavy TensorFlow library. The best model file is `xception_v1_1_18_0.924.tflite`
-
-The process and result can be seen in the [Model training and tuning](notebooksnotebook.ipynb#model-training-and-tuning) section of the notebook.
+The process and results can be seen in the [Model training and tuning](notebooksnotebook.ipynb#model-training-and-tuning) section of the notebook.
 
 
 ## 6. Lambda function
-Following the approach from the Zoomcamp, the prediction service was deployed using AWS Lambda, a serverless service. The goal is to create an endpoint that, upon receiving a URL of a flower image, returns a list of classes with their respective scores.
+Following the approach from the Zoomcamp, the prediction service was deployed using AWS Lambda, a serverless service. The goal is to create an endpoint that, upon receiving a URL of a flower image, returns the top 10 most probable classes the image belongs to, along with their respective scores.
 
-To completely remove the dependency on TensorFlow, TensorFlow Lite Runtime was installed, along with `keras-image-helper`, which replaces the `load_img` and `preprocess_input` functions from Keras.
+To completely remove the dependency on `TensorFlow`, `TensorFlow Lite Runtime` was installed, along with `keras-image-helper`, which replaces the `load_img` and `preprocess_input` functions from Keras.
 
 We test the Lambda function locally, using ipython 
 
-```ipython
+```python
 
 In [1]: import lambda_function
 INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
@@ -127,7 +126,7 @@ In [7]: print(dict(sorted(result.items(), key=lambda x: x[1], reverse=True)[:10]
 Before deploying the Lambda function on AWS, we package everything into a Docker container using the AWS base image `public.ecr.aws/lambda/python:3.9`.
 The `tflite-runtime` package was replaced with a version compiled by Alexey (github.com/alexeygrigorev/tflite-aws-lambda) for the correct Linux version used in the AWS environment.
 
-The following demonstrates how to build the image and deploy the container with the service provided by the Lambda function. Then, we test the service using the Python script `test_locally.py`, which passes an image URL from the flower-dataset.
+The following demonstrates how to build the image and deploy the container with the service provided by the Lambda function. Then, we test the service using the script `test_locally.py`, which passes an image URL from the flower-dataset.
 
 ```bash
 
@@ -171,19 +170,22 @@ REPORT RequestId: 0673d8a5-a7bf-4b08-9d9b-f4156281b196  Init Duration: 0.05 ms  
 
 
 ## 8. Cloud service deployment with AWS Lambda and Amazon API Gateway
-
 The flower class prediction service was deployed on AWS using a serverless Lambda created from the previously built Docker image. Before creating the AWS Lambda, the Docker image was published to a private repository on the Elastic Container Registry (ECR) service, from which it was easily selected when creating the Lambda. The default configuration of the Lambda was also modified to use a maximum memory of 1024 MB and a timeout of 30 seconds.
 
-Finally, the service provided by Lambda was exposed through a RESTful API endpoint via Amazon API Gateway, which only exposes the "predict" resource, accessible through the POST method.
+Finally, the service provided by Lambda was exposed through a RESTful API endpoint via Amazon API Gateway, which only exposes the `predict` resource, accessible through the POST method.
 
 The API service is public and available via the following endpoint:
 https://exy970w5sd.execute-api.us-east-1.amazonaws.com/test/predict
 
-Below is the testing of the service using the `test_api_gateway.py` script: 
+
+Below is the test of the service, which was performed using the test_api_gateway.py script.
 
 ```bash
-# Set the environment with the AWS credentials (modified this with your own credentials)
-> export AWS_PROFILE=jad-personal
+
+# Make sure your AWS credentials are properly set for CLI access. 
+# I do this by exporting the `AWS_PROFILE` environment variable, setting it to use the appropriate profile from `~/aws/credentials`.
+# Replace "aws-profile" with the appropriate value for your case.
+> export AWS_PROFILE=my-aws-profile
 
 # You need this to be able to login to this registry with docker
 > $(aws ecr get-login --no-include-email --region us-east-1)
@@ -191,6 +193,7 @@ WARNING! Using --password via the CLI is insecure. Use --password-stdin.
 Login Succeeded
 
 # Retag the docker image to prepare for ECR
+# Replace <YOUR-AWS-ACCOUNT-ID> with you AWS ACCOUNT ID
 ACCOUNT=<YOUR-AWS-ACCOUNT-ID>
 REGION=us-east-1
 REGISTRY=flowers-tflite-images
@@ -217,9 +220,9 @@ flowers-model-v1-002: digest: sha256:1c54bff1e4e7553321be248f2a94aaf441353b2c669
 
 ```
 
-After pushing the docker image, I create the Lambda function and API Gateway endpoint from AWS console. At the end, some screenshots are shown with the most relevant information set in each service.
+After pushing the Docker image, I created the Lambda function and API Gateway endpoint from the AWS console. 
 
-With the service endpoint available on AWS, we can perform testing from the local terminal using the script `test_api_gateway.py`
+With the service endpoint available on AWS, testing can be performed from the local terminal using the script `test_api_gateway.py`.
 
 ```bash
 
@@ -229,3 +232,26 @@ With the service endpoint available on AWS, we can perform testing from the loca
 > 
 
 ```
+
+Finally, some screenshots are provided, showing the most relevant settings for each service.
+
+Elastic Container Registry **flowers-tflite-images**
+![ecr](images/ecr.png)
+
+Selecting a Docker image during Lambda function creation
+![lambda-image](images/lambda-image.png)
+
+Lambda configuration
+![lambda-config](images/lambda-config.png)
+
+Lambda testing: **Test event**
+![lambda-test-01](images/lambda-test-01.png)
+
+Lambda testing: **Result Details**
+![lambda-test-02](images/lambda-test-02.png)
+
+API Gateway **Method request**
+![apigw-01](images/apigw-01.png)
+
+API Gateway **Integration request**
+![apigw-02](images/apigw-02.png)

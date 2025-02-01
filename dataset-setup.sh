@@ -6,7 +6,7 @@ tar -xvzf 102flowers.tgz -C dataset
 wget -P dataset https://www.robots.ox.ac.uk/%7Evgg/data/flowers/102/imagelabels.mat
 
 # Split the images into folders according to their class
-python scripts/split_dataset_by_class.py
+python split_dataset_by_class.py
 
 # Fixes the missing folders in the test dataset
 mkdir 'dataset/test/pink primrose'
