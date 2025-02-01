@@ -4,10 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-tensorflow-datasets = "*"
 scipy = "*"
 matplotlib = "*"
-tensorflow = {extras = ["and-cuda"], version = "*"}
+tensorflow = "*"
 keras-image-helper = "*"
 tflite-runtime = "*"
 numpy = "==1.26.4"
