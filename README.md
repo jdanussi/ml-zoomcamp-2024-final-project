@@ -11,9 +11,9 @@
 8. Cloud service deployment with AWS Lambda and Amazon API Gateway
 
 ## 1. Problem Description
-In this project, I trained a Convolutional Neural Network (CNN) model for flower classification, leveraging transfer learning with the Xception architecture pretrained on ImageNet. The trained model was then deployed as a public cloud service on AWS, utilizing Lambda for serverless inference and API Gateway for external access. This setup allows users to send image URLs and receive predictions without the need for dedicated infrastructure. The solution is both scalable and cost-effective, accessible via a simple API request.
+In this project, I trained a **Convolutional Neural Network (CNN)** model for flower classification, leveraging **transfer learning** with the **Xception** architecture pretrained on **ImageNet**. The trained model was then deployed as a public cloud service on **AWS**, utilizing **Lambda** for serverless inference and **API Gateway** for external access. This setup allows users to send image URLs and receive predictions without the need for dedicated infrastructure. The solution is both scalable and cost-effective, accessible via a simple API request.
 
-The dataset used is the Oxford 102 Flower dataset that can be download from [here](https://www.robots.ox.ac.uk/%7Evgg/data/flowers/102/102flowers.tgz)
+The dataset used is the **Oxford 102 Flower dataset** that can be download from [here](https://www.robots.ox.ac.uk/%7Evgg/data/flowers/102/102flowers.tgz)
 
 
 ## 2. Dependency and environment management
@@ -37,11 +37,11 @@ The dataset used is the Oxford 102 Flower dataset that can be download from [her
 
 
 ## 3. Exploratory Data Analysis
-The dataset used consists of 102 flower categories. Each class consists of between 40 and 258 images. 
+The dataset used consists of 102 flower categories, with each class containing between 40 and 258 images. 
 The images have large scale, pose and light variations. In addition, there are categories that have large variations within the category and several very similar categories.
 
 In the [Exploratory Data Analysis (EDA)](notebook.ipynb#exploratory-data-analysis-eda) section of the notebook, it is observed that the classes are not balanced. 
-Since we are using transfer learning with a pre-trained model, which has already learned features from a large, balanced dataset (ImageNet), we can expect that the fine-tuning performed on top of the convolutional layers will lead to better generalization, particularly for minority classes.
+Since we are using transfer learning with a pre-trained model, which has already learned features from a large, balanced dataset (**ImageNet**), we can expect that the fine-tuning performed on top of the convolutional layers will lead to better generalization, particularly for minority classes.
 
 The [dataset](https://www.robots.ox.ac.uk/%7Evgg/data/flowers/102/102flowers.tgz) and the [imagelabels](https://www.robots.ox.ac.uk/%7Evgg/data/flowers/102/imagelabels.mat) were downloaded from the [Oxford 102 Flower dataset Homepage](https://www.robots.ox.ac.uk/%7Evgg/data/flowers/102/)
 
@@ -78,7 +78,7 @@ The split of the dataset was also published in the [flowers-dataset](git@github.
 ## 5. Model training and tuning
 We will use the **Xception** model from **Keras**, which was pre-trained on **ImageNet**, to extract image features. Then, we will build and train a dense model on top of it using transfer learning.
 
-The model was tuned on Saturn Cloud Platform (https://saturncloud.io/), leveraging its **GPU-supported Jupyter notebooks** to accelerate experimentation. The tuning process involved testing different values for the *learning rate*, *dropout rate*, and *inner layer size*, as well as evaluating the impact of *data augmentation*. The best performance was achieved with the following configuration:
+The model was tuned on **Saturn Cloud Platform** (https://saturncloud.io/), leveraging its **GPU-supported Jupyter notebooks** to accelerate experimentation. The tuning process involved testing different values for the *learning rate*, *dropout rate*, and *inner layer size*, as well as evaluating the impact of *data augmentation*. The best performance was achieved with the following configuration:
 
 - Learning rate: 0.001  
 - Dropout rate: 0.0 (no dropout)  
@@ -175,13 +175,13 @@ The **Flower Class Prediction** service was deployed on **AWS Lambda**, a server
 Additionally, the default configuration of the **Lambda** function was modified to allocate **1024 MB of memory** and set a **timeout of 30 seconds** to optimize execution performance.
 
 
-Finally, the service provided by Lambda was exposed through a RESTful API endpoint via Amazon API Gateway, which only exposes the `predict` resource, accessible through the POST method.
+Finally, the service provided by Lambda was exposed through a **RESTful API endpoint** via **Amazon API Gateway**, which only exposes the `predict` resource, accessible through the POST method.
 
 The API service is public and available via the following endpoint:
 https://exy970w5sd.execute-api.us-east-1.amazonaws.com/test/predict
 
 
-Below is the test of the service, which was performed using the test_api_gateway.py script.
+Below are the steps to build, retag, and register the Docker image in ECR.
 
 ```bash
 
@@ -206,7 +206,7 @@ REMOTE_URI=${PREFIX}:${TAG}
 
 > docker tag flowers-classification:latest ${REMOTE_URI}
 
-# Push image to ECR (The example is not the firsf push, that's why there layers that already exists)
+# Push image to ECR (The example is not the firsf push, that's why there are layers that already exists)
 > docker push ${REMOTE_URI}
 The push refers to repository [564443450717.dkr.ecr.us-east-1.amazonaws.com/flowers-tflite-images]
 2de9bed70fa9: Pushed 
@@ -236,7 +236,7 @@ With the service endpoint available on AWS, testing can be performed from the lo
 
 ```
 
-Finally, some screenshots are provided, showing the most relevant settings for each service.
+Finally, some screenshots are provided, showcasing the most relevant settings for each service used.
 
 Saturn Cloud environment config
 ![saturncloud-env](images/saturncloud-env.png)
