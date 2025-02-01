@@ -12,28 +12,24 @@ interpreter.allocate_tensors()
 input_index = interpreter.get_input_details()[0]['index']
 output_index = interpreter.get_output_details()[0]['index']
  
-url = 'https://raw.githubusercontent.com/jdanussi/flowers-dataset/refs/heads/main/test/cape%20flower/image_03810.jpg'
-
  
 classes = ['alpine sea holly', 'anthurium', 'artichoke', 'azalea', 'balloon flower', 'barbeton daisy', 'bearded iris', 'bee balm', 'bird of paradise', 'bishop of llandaff', 'black-eyed susan', 'blackberry lily', 'blanket flower', 'bolero deep blue', 'bougainvillea', 'bromelia', 'buttercup', 'californian poppy', 'camellia', 'canna lily', 'canterbury bells', 'cape flower', 'carnation', 'cautleya spicata', 'clematis', "colt's foot", 'columbine', 'common dandelion', 'corn poppy', 'cyclamen', 'daffodil', 'desert-rose', 'fire lily', 'foxglove', 'frangipani', 'fritillary', 'garden phlox', 'gaura', 'gazania', 'geranium', 'giant white arum lily', 'globe flower', 'globe thistle', 'grape hyacinth', 'great masterwort', 'hard-leaved pocket orchid', 'hibiscus', 'hippeastrum', 'japanese anemone', 'king protea', 'lenten rose', 'lotus', 'love in the mist', 'magnolia', 'mallow', 'marigold', 'mexican aster', 'mexican petunia', 'monkshood', 'moon orchid', 'morning glory', 'orange dahlia', 'osteospermum', 'oxeye daisy', 'passion flower', 'pelargonium', 'peruvian lily', 'petunia', 'pincushion flower', 'pink primrose', 'pink quill', 'pink-yellow dahlia?', 'poinsettia', 'primula', 'prince of wales feathers', 'purple coneflower', 'red ginger', 'rose', 'ruby-lipped cattleya', 'siam tulip', 'silverbush', 'snapdragon', 'spear thistle', 'spring crocus', 'stemless gentian', 'sunflower', 'sweet pea', 'sweet william', 'sword lily', 'thorn apple', 'tiger lily', 'toad lily', 'tree mallow', 'tree poppy', 'trumpet creeper', 'wallflower', 'water lily', 'watercress', 'wild geranium', 'wild pansy', 'windflower', 'yellow iris']
- 
+
+
 def predict(url):
     X = preprocessor.from_url(url)
  
     interpreter.set_tensor(input_index, X)
     interpreter.invoke()
     preds = interpreter.get_tensor(output_index)
- 
-    # What happens here is we take an Numpy array and 
-    # it will be converted to usual python list with usual python floats.
     float_predictions = preds[0].tolist()
  
     return dict(zip(classes, float_predictions))
- 
+
+
 def lambda_handler(event, context):
     url = event['url']
-       
     result = predict(url)
-    #result = dict(sorted(result.items(), key=lambda item: item[1], reverse=True))
-    result = next(iter(sorted(result, key=result.get, reverse=True)))
+    result = dict(sorted(result.items(), key=lambda x: x[1], reverse=True)[:10])
+    
     return result

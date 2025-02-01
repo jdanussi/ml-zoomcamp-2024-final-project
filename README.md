@@ -71,6 +71,9 @@ mv 'dataset/train/prince of wales feathers/image_06850.jpg' 'dataset/test/prince
 
 was added because, after executing the Python script `scripts/split_dataset_by_class.py`, it was found that two class folders were missing in the dataset/test directory. Therefore, the missing folders were created and populated with at least one file from the training set. This fix was necessary to avoid dimensional problems when using the test dataset during the evaluation of the model.
 
+The split of the dataset was also published in the [flowers-dataset](git@github.com:jdanussi/flowers-dataset.git) repository, which will be useful for testing the services we deploy.
+
+
 
 ## 5. Model training and tuning
 We will use the Xception model from Keras, which was pre-trained on ImageNet, to extract image features. Then, we will build and train a dense model on top of it using transfer learning.
@@ -82,28 +85,88 @@ The model was tuned by testing different values for the learning rate, dropout r
 - Inner layer size: 1000  
 - No data augmentation
 
+The best model was save in h5 format an then converted to tflite in order to be used inside a Lamba function with tflite_runtime in place of the full tensorflow package. The best model file is `xception_v1_1_18_0.924.tflite`
+
 The process and result can be seen in the [Model training and tuning](notebook.ipynb#model-training-and-tuning) section of the notebook.
 
 
 ## 6. Lambda function
+Following the approach from the Zoomcamp, the prediction service was deployed using AWS Lambda, a serverless service. The goal is to create an endpoint that, upon receiving a URL of a flower image, returns a list of classes with their respective scores.
+
+To completely remove the dependency on TensorFlow, TensorFlow Lite Runtime was installed, along with `keras-image-helper`, which replaces the `load_img` and `preprocess_input` functions from Keras.
+
+We test the Lambda function locally, using ipython 
+
+```ipython
+
+In [1]: import lambda_function
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+
+In [2]: event = {'url': 'https://github.com/jdanussi/flowers-dataset/blob/main/test/bee%20balm/image_03060.jpg?raw=true'}
+
+In [3]: result = lambda_function.lambda_handler(event, None)
+
+# Show the top 10 most probable classes
+In [4]: print(dict(sorted(result.items(), key=lambda x: x[1], reverse=True)[:10]))
+{'bee balm': 14.12916088104248, 'common dandelion': 3.8607218265533447, 'globe thistle': -0.3712370991706848, 'cape flower': -1.3991206884384155, 'red ginger': -1.9034096002578735, 'carnation': -2.3492584228515625, 'blanket flower': -3.5331532955169678, 'azalea': -4.272549629211426, 'gaura': -4.346775531768799, 'sweet william': -4.356930732727051}
+
+
+In [5]: event = {'url': 'https://github.com/jdanussi/flowers-dataset/blob/main/test/bolero%20deep%20blue/image_07132.jpg?raw=true'}
+
+In [6]: result = lambda_function.lambda_handler(event, None)
+
+# Show the top 10 most probable classes
+In [7]: print(dict(sorted(result.items(), key=lambda x: x[1], reverse=True)[:10]))
+{'bolero deep blue': -0.8681230545043945, 'canterbury bells': -1.2452996969223022, 'spring crocus': -1.2499873638153076, 'corn poppy': -2.2304394245147705, 'bearded iris': -2.652745485305786, 'sweet pea': -3.239044666290283, 'cyclamen': -3.615382194519043, 'tree mallow': -3.7148847579956055, 'lotus': -5.3969621658325195, 'sword lily': -5.507812976837158}
+
+```
 
 
 ## 7. Local model deployment with Docker
-Below is the process for exposing the lambda function running inside a Docker container.
+Before deploying the Lambda function on AWS, we package everything into a Docker container using the AWS base image `public.ecr.aws/lambda/python:3.9`.
+The `tflite-runtime` package was replaced with a version compiled by Alexey (github.com/alexeygrigorev/tflite-aws-lambda) for the correct Linux version used in the AWS environment.
+
+The following demonstrates how to build the image and deploy the container with the service provided by the Lambda function. Then, we test the service using the Python script `test_locally.py`, which passes an image URL from the flower-dataset.
 
 ```bash
 
 # Build the docker image
-> docker build -t flowers-model .
+> docker build -t flowers-classification .
 
-# Deploy a local service for water potability prediction using a docker container
-> docker run -it --rm -p bla bla
+# Check the image created
+> docker image ls | grep flowers-classification
+flowers-classification    latest    5c0395b867f0   7 minutes ago   839MB
 
-
-# Test the containerized service from other terminal of the same instance
-> python predict-test.py
-{'potability': False, 'potability_probability': 0.20214878729185673}
-Water sample id water-230 is Non-potable water
->
+# Deploy a lambda_function using a docker container
+> docker run -it --rm -p 8080:8080 flowers-classification:latest
+01 Feb 2025 15:23:47,084 [INFO] (rapid) exec '/var/runtime/bootstrap' (cwd=/var/task, handler=)
 
 ```
+
+and test the service
+
+```bash
+
+# Test from other terminal of the same instance
+> python test_locally.py 
+{'cape flower': 19.202898025512695, 'gaura': 3.7901079654693604, 'trumpet creeper': 1.7330631017684937, 'blackberry lily': -0.5172544717788696, 'columbine': -1.182721734046936, 'tiger lily': -2.336095094680786, 'cautleya spicata': -2.3456387519836426, 'orange dahlia': -3.425830364227295, 'pink quill': -3.491724967956543, 'fire lily': -3.7202038764953613}
+>
+
+# Docker outputs the request
+> docker run -it --rm -p 8080:8080 flowers-classification:latest
+01 Feb 2025 15:23:47,084 [INFO] (rapid) exec '/var/runtime/bootstrap' (cwd=/var/task, handler=)
+START RequestId: fd691123-d69f-4998-8ab5-19c219cd0caa Version: $LATEST
+01 Feb 2025 15:23:52,576 [INFO] (rapid) INIT START(type: on-demand, phase: init)
+01 Feb 2025 15:23:52,576 [INFO] (rapid) The extension's directory "/opt/extensions" does not exist, assuming no extensions to be loaded.
+01 Feb 2025 15:23:52,576 [INFO] (rapid) Starting runtime without AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN , Expected?: false
+01 Feb 2025 15:23:52,803 [INFO] (rapid) INIT RTDONE(status: success)
+01 Feb 2025 15:23:52,803 [INFO] (rapid) INIT REPORT(durationMs: 227.116000)
+01 Feb 2025 15:23:52,803 [INFO] (rapid) INVOKE START(requestId: 0673d8a5-a7bf-4b08-9d9b-f4156281b196)
+01 Feb 2025 15:23:53,534 [INFO] (rapid) INVOKE RTDONE(status: success, produced bytes: 0, duration: 730.686000ms)
+END RequestId: 0673d8a5-a7bf-4b08-9d9b-f4156281b196
+REPORT RequestId: 0673d8a5-a7bf-4b08-9d9b-f4156281b196  Init Duration: 0.05 ms  Duration: 957.99 ms     Billed Duration: 958 ms Memory Size: 3008 MB    Max Memory Used: 3008 MB
+
+```
+
+
+## 8. Cloud service deployment with AWS Lambda and Amazon API Gateway
