@@ -78,7 +78,7 @@ The split of the dataset was also published in the [flowers-dataset](git@github.
 ## 5. Model training and tuning
 We will use the **Xception** model from **Keras**, which was pre-trained on **ImageNet**, to extract image features. Then, we will build and train a dense model on top of it using transfer learning.
 
-The model was tuned by testing different values for the *learning rate*, *dropout rate*, and *inner layer size*. Data augmentation was also evaluated. The best performance was achieved with the following options:  
+The model was tuned on Saturn Cloud Platform (https://saturncloud.io/), leveraging its **GPU-supported Jupyter notebooks** to accelerate experimentation. The tuning process involved testing different values for the *learning rate*, *dropout rate*, and *inner layer size*, as well as evaluating the impact of *data augmentation*. The best performance was achieved with the following configuration:
 
 - Learning rate: 0.001  
 - Dropout rate: 0.0 (no dropout)  
@@ -87,7 +87,7 @@ The model was tuned by testing different values for the *learning rate*, *dropou
 
 The most performant model was first saved in TensorFlow format (h5) and then converted to TensorFlow Lite (tflite) format to be used in a Lambda function without the need to import the heavy TensorFlow library. The best model was saved and converted to the file `xception_v1_1_18_0.924.tflite`.
 
-The process and results can be seen in the [Model training and tuning](notebooksnotebook.ipynb#model-training-and-tuning) section of the notebook.
+The process and results can be seen in the [Model training and tuning](notebook.ipynb#model-training-and-tuning) section of the notebook.
 
 
 ## 6. Lambda function
@@ -126,7 +126,7 @@ In [7]: print(dict(sorted(result.items(), key=lambda x: x[1], reverse=True)[:10]
 Before deploying the Lambda function on AWS, we package everything into a Docker container using the AWS base image `public.ecr.aws/lambda/python:3.9`.
 The `tflite-runtime` package was replaced with a version compiled by Alexey (github.com/alexeygrigorev/tflite-aws-lambda) for the correct Linux version used in the AWS environment.
 
-The following demonstrates how to build the image and deploy the container with the service provided by the Lambda function. Then, we test the service using the script `test_locally.py`, which passes an image URL from the flower-dataset.
+The following demonstrates how to build the image and deploy the container with the service provided by the Lambda function. Then, we test the service using the script `test_locally.py`, which passes an image URL from the [flower-dataset](git@github.com:jdanussi/flowers-dataset.git).
 
 ```bash
 
@@ -237,6 +237,9 @@ With the service endpoint available on AWS, testing can be performed from the lo
 ```
 
 Finally, some screenshots are provided, showing the most relevant settings for each service.
+
+Saturn Cloud environment config
+![saturncloud-env](images/saturncloud-env.png)
 
 Elastic Container Registry **flowers-tflite-images**
 ![ecr](images/ecr.png)
