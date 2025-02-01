@@ -45,7 +45,7 @@ Since we are using transfer learning with a pre-trained model, which has already
 
 The [dataset](https://www.robots.ox.ac.uk/%7Evgg/data/flowers/102/102flowers.tgz) and the [imagelabels](https://www.robots.ox.ac.uk/%7Evgg/data/flowers/102/imagelabels.mat) were downloaded from the [Oxford 102 Flower dataset Homepage](https://www.robots.ox.ac.uk/%7Evgg/data/flowers/102/)
 
-The names for classes where obteined from [JosephKJ/Oxford-102_Flower_dataset_labels.txt](https://gist.github.com/JosephKJ/94c7728ed1a8e0cd87fe6a029769cde1) and used into the python script `scripts/split_dataset_by_class.py` that was used as a helper to split the dateset into train, validation and test. 
+The names for classes where obteined from [JosephKJ/Oxford-102_Flower_dataset_labels.txt](https://gist.github.com/JosephKJ/94c7728ed1a8e0cd87fe6a029769cde1) and used into the python script `split_dataset_by_class.py` that was used as a helper to split the dateset into train, validation and test. 
 
 
 ## 4. Data preparation
@@ -60,7 +60,7 @@ You don't need to run the procedure detailed below, as the dataset with images s
 
 The following part of the bash script:
 
-```bash
+```python
 
 mkdir 'dataset/test/pink primrose'
 mkdir 'dataset/test/prince of wales feathers'
@@ -69,7 +69,7 @@ mv 'dataset/train/prince of wales feathers/image_06850.jpg' 'dataset/test/prince
 
 ```
 
-was added because, after executing the Python script `scripts/split_dataset_by_class.py`, it was found that two class folders were missing in the dataset/test directory. Therefore, the missing folders were created and populated with at least one file from the training set. This fix was necessary to avoid dimensional problems when using the test dataset during the evaluation of the model.
+was added because, after executing the Python script `split_dataset_by_class.py`, it was found that two class folders were missing in the dataset/test directory. Therefore, the missing folders were created and populated with at least one file from the training set. This fix was necessary to avoid dimensional problems when using the test dataset during the evaluation of the model.
 
 The split of the dataset was also published in the [flowers-dataset](git@github.com:jdanussi/flowers-dataset.git) repository, which will be useful for testing the services we deploy.
 
