@@ -1,7 +1,4 @@
 .ipynb_checkpoints/
 *.tgz
 *.h5
-#*.tflite
-README_midterm.md
 
-_backup
