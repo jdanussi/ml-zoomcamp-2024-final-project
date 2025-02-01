@@ -85,7 +85,8 @@ The model was tuned by testing different values for the learning rate, dropout r
 - Inner layer size: 1000  
 - No data augmentation
 
-The best model was save in h5 format an then converted to tflite in order to be used inside a Lamba function with tflite_runtime in place of the full tensorflow package. The best model file is `xception_v1_1_18_0.924.tflite`
+
+The most performant model was first saved in TensorFlow format (h5) and then converted to the TensorFlow Lite (tflite) format to be used in a Lambda function without having to import the heavy TensorFlow library. The best model file is `xception_v1_1_18_0.924.tflite`
 
 The process and result can be seen in the [Model training and tuning](notebook.ipynb#model-training-and-tuning) section of the notebook.
 
