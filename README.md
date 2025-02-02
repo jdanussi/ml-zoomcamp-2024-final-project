@@ -1,4 +1,4 @@
-# Flowers Classification
+# Xception Based Convolutional Neural Network for Flower Classification with Transfer Learning
 
 # Summary
 1. Problem Description
